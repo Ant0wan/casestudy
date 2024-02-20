@@ -62,6 +62,18 @@ func scrap(u *url.URL) Link {
 	}
 }
 
+func output(u *url.URL, link Link) {
+	// case JSON
+	jsonu := u.Scheme + "://" + u.Host
+	output, err := json.Marshal(map[string][]string{jsonu: link.Paths})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(output))
+
+	// Case Output
+}
+
 func main() {
 
 	u, err := url.Parse("https://news.ycombinator.com/")
@@ -71,10 +83,5 @@ func main() {
 
 	link := scrap(u)
 
-	output, err := json.Marshal(map[string][]string{link.Url: link.Paths})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(output))
-
+	output(u, link)
 }
