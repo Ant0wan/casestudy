@@ -13,35 +13,66 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"log"
+	"net/url"
 
 	"github.com/gocolly/colly"
 )
 
 type Link struct {
-	Url   string
-	Paths []string
+	Url       string
+	Paths     []string
+	Externals []string
 }
 
-func main() {
-	// Instantiate default collector
-	// Not sure configuration is good here
+func scrap(u *url.URL) Link {
+	var paths []string
+	var externals []string
+
+	// Instantiate collector
 	c := colly.NewCollector()
 
-	// On every a element which has href attribute call callback
-	//c.OnHTML("a[href]", func(e *colly.HTMLElement) {
+	// Scrapping logic
 	c.OnHTML("a", func(e *colly.HTMLElement) {
+
+		// retreive all href from all 'a'
 		link := e.Attr("href")
 
-		// use a lib to filter properly all kind of url
-		if strings.HasPrefix(link, "https://") || strings.HasPrefix(link, "http://") {
-			// use a lib to filte     r, _ := regexp.Compile("p([a-z]+)ch") string:// {
-			fmt.Println("with protocol: ", link)
-		} else { // add relative, remove the mailto: ... etc
-			fmt.Println("relative: ", link)
+		u, err := url.Parse(link)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		rel, err := u.Parse(link) // if -o output, else put in JSON
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if u.IsAbs() {
+			externals = append(externals, rel.String())
+
+		} else {
+			paths = append(paths, rel.String())
 		}
 
 	})
 
-	c.Visit("https://news.ycombinator.com/")
+	c.Visit(u.String())
+	return Link{
+		Url:       u.String(),
+		Paths:     paths,
+		Externals: externals,
+	}
+}
+
+func main() {
+
+	u, err := url.Parse("https://news.ycombinator.com/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	link := scrap(u)
+	fmt.Println(link)
+
 }
