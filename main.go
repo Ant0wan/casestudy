@@ -25,9 +25,15 @@ func main() {
 	// On every a element which has href attribute call callback
 	//c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 	c.OnHTML(".athing", func(e *colly.HTMLElement) {
-		id := e.Attr("id")
+		//votelink := e.ChildAttrs(".votelink", "href")
+
+		link := e.ChildAttr(".title .titleline a[href]", "href")
+		fromsite := e.ChildAttr(".title .titleline .sitebit a[href]", "href")
+
+		if fromsite != "" {
+			fmt.Println(link, fromsite)
+		}
 		// Print link
-		fmt.Println(id)
 	})
 
 	c.Visit("https://news.ycombinator.com/")
