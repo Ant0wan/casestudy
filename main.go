@@ -1,17 +1,14 @@
 // main.go
-// Learned scraping from https://brightdata.com/blog/how-tos/web-scraping-go
-// then read gocolly colly documentation https://go-colly.org/docs/examples/basic/
-// doc https://developer.mozilla.org/fr/docs/Web/API/Document/querySelector
-// thousand ways to improve this:
-// focus on: scraping with lib for maintainance, using argparse for further cli
-// option/arg completion, flexibility in format output as a backend tool could
+// argparse for further cli
+// option/arg completion, flexibility in format output json, raw, yaml as a backend tool could
 // be useful to parse it via http or cli for the different services around.
-// paging to take into account
-// 3 structs: top, athing, bottom
+// paging to take into account !!
+// add log level info, debug, fatal...
 
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
@@ -73,6 +70,11 @@ func main() {
 	}
 
 	link := scrap(u)
-	fmt.Println(link)
+
+	output, err := json.Marshal(map[string][]string{link.Url: link.Paths})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(output))
 
 }
