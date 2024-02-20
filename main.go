@@ -13,9 +13,15 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gocolly/colly"
 )
+
+type Link struct {
+	Url   string
+	Paths []string
+}
 
 func main() {
 	// Instantiate default collector
@@ -24,16 +30,17 @@ func main() {
 
 	// On every a element which has href attribute call callback
 	//c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-	c.OnHTML(".athing", func(e *colly.HTMLElement) {
-		//votelink := e.ChildAttrs(".votelink", "href")
+	c.OnHTML("a", func(e *colly.HTMLElement) {
+		link := e.Attr("href")
 
-		link := e.ChildAttr(".title .titleline a[href]", "href")
-		fromsite := e.ChildAttr(".title .titleline .sitebit a[href]", "href")
-
-		if fromsite != "" {
-			fmt.Println(link, fromsite)
+		// use a lib to filter properly all kind of url
+		if strings.HasPrefix(link, "https://") || strings.HasPrefix(link, "http://") {
+			// use a lib to filte     r, _ := regexp.Compile("p([a-z]+)ch") string:// {
+			fmt.Println("with protocol: ", link)
+		} else { // add relative, remove the mailto: ... etc
+			fmt.Println("relative: ", link)
 		}
-		// Print link
+
 	})
 
 	c.Visit("https://news.ycombinator.com/")
