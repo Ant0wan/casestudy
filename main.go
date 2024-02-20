@@ -85,3 +85,12 @@ func main() {
 
 	output(u, link)
 }
+
+// TODO: json, output formats
+// Add option for all links not just relative
+// Add option to sort output
+// Use argparse
+// Comment all code
+// Loop over url args
+// Add log level "cannot process URL"
+// Multithread each URL in arg
