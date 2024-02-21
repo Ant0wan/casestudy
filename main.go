@@ -14,6 +14,8 @@ import (
 	"net/url"
 	"sync"
 
+	"myprogram/cmd"
+
 	"github.com/gocolly/colly"
 )
 
@@ -65,6 +67,7 @@ func scrap(u *url.URL) Link {
 
 func output(u *url.URL, link Link, oformat string) {
 	switch oformat {
+
 	case "json":
 		jsonu := u.Scheme + "://" + u.Host
 		output, err := json.Marshal(map[string][]string{jsonu: link.Paths})
@@ -72,7 +75,8 @@ func output(u *url.URL, link Link, oformat string) {
 			log.Fatal(err)
 		}
 		fmt.Println(string(output))
-	case "output":
+
+	case "stdout":
 		for _, path := range link.Paths {
 			o, err := url.JoinPath(link.Url, path)
 			if err != nil {
@@ -80,6 +84,7 @@ func output(u *url.URL, link Link, oformat string) {
 			}
 			fmt.Println(o)
 		}
+
 	default:
 		log.Fatal("Format specified does not exist")
 	}
@@ -98,6 +103,8 @@ func worker(addr string, oformat string) {
 
 func main() {
 
+	cmd.Execute()
+
 	var wg sync.WaitGroup
 	addrs := []string{"https://news.ycombinator.com/", "https://arstechnica.com/"}
 
@@ -106,7 +113,7 @@ func main() {
 
 		go func() {
 			defer wg.Done()
-			worker(addr, "output")
+			worker(addr, "stdout")
 		}()
 	}
 
