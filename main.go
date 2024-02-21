@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"sync"
 
 	"github.com/gocolly/colly"
 )
@@ -40,7 +41,7 @@ func scrap(u *url.URL) Link {
 			log.Fatal(err)
 		}
 
-		rel, err := u.Parse(link) // if -o output, else put in JSON
+		rel, err := u.Parse(link)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -84,24 +85,38 @@ func output(u *url.URL, link Link, oformat string) {
 	}
 }
 
-func main() {
-
-	u, err := url.Parse("https://news.ycombinator.com/")
+func worker(addr string, oformat string) {
+	u, err := url.Parse(addr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	link := scrap(u)
 
-	output(u, link, "output")
+	output(u, link, oformat)
 }
 
-// TODO: json, output formats
-// Add option for all links not just relative
+func main() {
+
+	var wg sync.WaitGroup
+	addrs := []string{"https://news.ycombinator.com/", "https://arstechnica.com/"}
+
+	for _, addr := range addrs {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+			worker(addr, "output")
+		}()
+	}
+
+	wg.Wait()
+}
+
+// Add option for all links not just relative add --all option
 // Add option to sort output
 // Use argparse
-// add --all option
-// Comment all code
-// Loop over url args
+
 // Add log level "cannot process URL"
-// Multithread each URL in arg
+
+// Comment all code
