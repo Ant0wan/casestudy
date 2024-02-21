@@ -19,16 +19,25 @@ make test
 
 Build and run
 ```shell
-docker build -t myprogram:1 .
-docker run myprogram:1 -u https://yahoo.fr
+docker build -t myprogram/myprogram .
+docker run myprogram/myprogram -u https://yahoo.fr
 ```
 
 Linter and scan
 ```shell
 hadolint Dockerfile
-trivy image myprogram:1 > security-report.log
+trivy image myprogram/myprogram > security-report.log
 ```
 
+Using Minikube, with tiny conf
+```shell
+eval $(minikube -p minikube docker-env)
+docker build -t myprogram/myprogram .
+
+kubectl create -f myprogram-manifest.yaml --dry-run=client
+kubectl create -f myprogram-manifest.yaml
+kubectl logs pod/myprogram-xxxxx
+```
 
 ## Part3
 
