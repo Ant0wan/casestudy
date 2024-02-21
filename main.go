@@ -62,16 +62,26 @@ func scrap(u *url.URL) Link {
 	}
 }
 
-func output(u *url.URL, link Link) {
-	// case JSON
-	jsonu := u.Scheme + "://" + u.Host
-	output, err := json.Marshal(map[string][]string{jsonu: link.Paths})
-	if err != nil {
-		log.Fatal(err)
+func output(u *url.URL, link Link, oformat string) {
+	switch oformat {
+	case "json":
+		jsonu := u.Scheme + "://" + u.Host
+		output, err := json.Marshal(map[string][]string{jsonu: link.Paths})
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(string(output))
+	case "output":
+		for _, path := range link.Paths {
+			o, err := url.JoinPath(link.Url, path)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(o)
+		}
+	default:
+		log.Fatal("Format specified does not exist")
 	}
-	fmt.Println(string(output))
-
-	// Case Output
 }
 
 func main() {
@@ -83,13 +93,14 @@ func main() {
 
 	link := scrap(u)
 
-	output(u, link)
+	output(u, link, "output")
 }
 
 // TODO: json, output formats
 // Add option for all links not just relative
 // Add option to sort output
 // Use argparse
+// add --all option
 // Comment all code
 // Loop over url args
 // Add log level "cannot process URL"
