@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"sync"
 
@@ -10,7 +11,7 @@ import (
 )
 
 var (
-	addr    string
+	addrs   []string
 	format  string
 	rootCmd = &cobra.Command{
 		Use:   "myprogram",
@@ -18,8 +19,7 @@ var (
 		Long: `Given any number of HTTP URLs as command line parameters,
 myprogram connects to each URL and extract all links from it.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			var addrs []string
-			addrs = append(addrs, addr)
+			fmt.Println(addrs)
 			scrap(addrs)
 		}}
 )
@@ -55,7 +55,10 @@ func init() {
 	// will be global for your application.
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.myprogram.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&addr, "url", "u", "", "webpage url to be scrapped")
+
+	//     you can use pflag.StringSlice* or pflag.StringArray* functions to
+	//rootCmd.PersistentFlags().StringVarP(&addr, "url", "u", "", "webpage url to be scrapped")
+	rootCmd.Flags().StringArrayVarP(&addrs, "url", "u", []string{}, "webpage url to be scrapped")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
