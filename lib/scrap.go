@@ -1,19 +1,10 @@
-// main.go
-// argparse for further cli
-// option/arg completion, flexibility in format output json, raw, yaml as a backend tool could
-// be useful to parse it via http or cli for the different services around.
-// paging to take into account !!
-// add log level info, debug, fatal...
-
-package main
+package lib
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
-
-	"myprogram/cmd"
 
 	"github.com/gocolly/colly"
 )
@@ -89,7 +80,7 @@ func output(u *url.URL, link Link, oformat string) {
 	}
 }
 
-func worker(addr string, oformat string) {
+func Worker(addr string, oformat string) {
 	u, err := url.Parse(addr)
 	if err != nil {
 		log.Fatal(err)
@@ -99,30 +90,3 @@ func worker(addr string, oformat string) {
 
 	output(u, link, oformat)
 }
-
-func main() {
-
-	cmd.Execute()
-
-	// var wg sync.WaitGroup
-	// addrs := []string{"https://news.ycombinator.com/", "https://arstechnica.com/"}
-	//
-	//	for _, addr := range addrs {
-	//		wg.Add(1)
-	//
-	//		go func() {
-	//			defer wg.Done()
-	//			worker(addr, "stdout")
-	//		}()
-	//	}
-	//
-	// wg.Wait()
-}
-
-// Add option for all links not just relative add --all option
-// Add option to sort output
-// Use argparse
-
-// Add log level "cannot process URL"
-
-// Comment all code
