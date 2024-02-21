@@ -32,5 +32,11 @@ trivy image myprogram:1 > security-report.log
 
 ## Part3
 
+```shell
 ```
+
+## Part4
+
+```shell
+grep -aoiE '[a-z]+.com' file-part4.txt | awk '{print tolower($0)}'
 ```
