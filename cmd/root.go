@@ -1,45 +1,65 @@
+// cmd.go
+
+// The "cmd" package serves as the command-line interface for the myprogram tool.
+// It uses the Cobra library for building a user-friendly command-line application.
+// The primary functionality includes defining command-line flags, parsing arguments,
+// and triggering the execution of the web scraping process through the lib.Worker function.
+// The lib.Worker function is expected to be defined in the "myprogram/lib" package,
+// handling the actual web scraping logic for a given URL.
+// Note: The lib.Worker function is assumed to be defined in the lib package.
+// It is responsible for performing the actual scraping of a given URL.
+
 package cmd
 
 import (
 	"os"
 	"sync"
 
-	"myprogram/lib"
+	"myprogram/lib" // Importing the custom lib package
 
-	"github.com/spf13/cobra"
+	"github.com/spf13/cobra" // Importing the Cobra library for building command-line applications
 )
 
+// Command-line flags and variables
 var (
-	addrs   []string
-	format  string
+	addrs   []string // Slice to store URLs to be scrapped
+	format  string   // Output format (json or stdout)
 	rootCmd = &cobra.Command{
 		Use:   "myprogram",
 		Short: "A simple URL scrapper.",
 		Long: `Given any number of HTTP URLs as command line parameters,
-myprogram connects to each URL and extract all links from it.`,
+myprogram connects to each URL and extracts all links from it.`,
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if len(addrs) == 0 {
+				cmd.Help()
+				os.Exit(1)
+			}
+			return nil
+		},
 		Run: func(cmd *cobra.Command, args []string) {
-			scrap(addrs)
-		}}
+			scrap(addrs, format)
+		},
+	}
 )
 
-func scrap(addrs []string) {
+// scrap function takes a slice of URLs and an output format,
+// spawns a worker for each URL, and waits for all workers to finish.
+func scrap(addrs []string, format string) {
 	var wg sync.WaitGroup
 
 	for _, addr := range addrs {
 		wg.Add(1)
 
-		go func() {
+		go func(addr string) {
 			defer wg.Done()
-			lib.Worker(addr, "stdout")
-		}()
+			lib.Worker(addr, format)
+		}(addr)
 	}
 
 	wg.Wait()
-
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// Execute function starts the execution of the root command.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -47,19 +67,8 @@ func Execute() {
 	}
 }
 
+// init function initializes the command-line flags for the root command.
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.myprogram.yaml)")
-
-	//     you can use pflag.StringSlice* or pflag.StringArray* functions to
-	//rootCmd.PersistentFlags().StringVarP(&addr, "url", "u", "", "webpage url to be scrapped")
-	rootCmd.Flags().StringArrayVarP(&addrs, "url", "u", []string{}, "webpage url to be scrapped")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//	rootCmd.PersistentFlags().StringP("output", "FORMAT", "", "output either json or stdout(full url)")
-	//	rootCmd.PersistentFlags().StringP("url", "URL", "", "url to be scrapped")
+	rootCmd.Flags().StringArrayVarP(&addrs, "url", "u", []string{}, "webpage URL to be scrapped")
+	rootCmd.PersistentFlags().StringVarP(&format, "output", "o", "json", "output format: json or stdout (full URL)")
 }

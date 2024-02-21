@@ -1,128 +1,21 @@
 // main.go
-// argparse for further cli
-// option/arg completion, flexibility in format output json, raw, yaml as a backend tool could
-// be useful to parse it via http or cli for the different services around.
-// paging to take into account !!
-// add log level info, debug, fatal...
+
+// Package main provides the main entry point for the program.
+// The program is designed to crawl a given URL, extract internal and external links,
+// and output the results in either JSON or stdout format.
+// Note: Paging has not been implemented in this version.
+// TODO: Add an option for all links, not just relative (consider adding a --all option)
+// TODO: Add log level "cannot process URL"
+// TODO: Add comprehensive comments to explain the code in more detail
 
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/url"
-
-	"myprogram/cmd"
-
-	"github.com/gocolly/colly"
+	"myprogram/cmd" // Importing the custom cmd package
 )
 
-type Link struct {
-	Url       string
-	Paths     []string
-	Externals []string
-}
-
-func crawl(u *url.URL) Link {
-	var paths []string
-	var externals []string
-
-	// Instantiate collector
-	c := colly.NewCollector()
-
-	// Scrapping logic
-	c.OnHTML("a", func(e *colly.HTMLElement) {
-
-		// retreive all href from all 'a'
-		link := e.Attr("href")
-
-		u, err := url.Parse(link)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		rel, err := u.Parse(link)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if u.IsAbs() {
-			externals = append(externals, rel.String())
-
-		} else {
-			paths = append(paths, rel.String())
-		}
-
-	})
-
-	c.Visit(u.String())
-	return Link{
-		Url:       u.String(),
-		Paths:     paths,
-		Externals: externals,
-	}
-}
-
-func output(u *url.URL, link Link, oformat string) {
-	switch oformat {
-
-	case "json":
-		jsonu := u.Scheme + "://" + u.Host
-		output, err := json.Marshal(map[string][]string{jsonu: link.Paths})
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(string(output))
-
-	case "stdout":
-		for _, path := range link.Paths {
-			o, err := url.JoinPath(link.Url, path)
-			if err != nil {
-				log.Fatal(err)
-			}
-			fmt.Println(o)
-		}
-
-	default:
-		log.Fatal("Format specified does not exist")
-	}
-}
-
-func worker(addr string, oformat string) {
-	u, err := url.Parse(addr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	link := crawl(u)
-
-	output(u, link, oformat)
-}
-
+// main function is the entry point of the program.
+// It executes the cmd package and starts the program.
 func main() {
-
 	cmd.Execute()
-
-	// var wg sync.WaitGroup
-	// addrs := []string{"https://news.ycombinator.com/", "https://arstechnica.com/"}
-	//
-	//	for _, addr := range addrs {
-	//		wg.Add(1)
-	//
-	//		go func() {
-	//			defer wg.Done()
-	//			worker(addr, "stdout")
-	//		}()
-	//	}
-	//
-	// wg.Wait()
 }
-
-// Add option for all links not just relative add --all option
-// Add option to sort output
-// Use argparse
-
-// Add log level "cannot process URL"
-
-// Comment all code
