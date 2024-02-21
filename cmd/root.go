@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"sync"
 
@@ -19,7 +18,6 @@ var (
 		Long: `Given any number of HTTP URLs as command line parameters,
 myprogram connects to each URL and extract all links from it.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(addrs)
 			scrap(addrs)
 		}}
 )
