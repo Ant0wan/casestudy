@@ -26,6 +26,7 @@ docker run myprogram:1 -u https://yahoo.fr
 Linter and scan
 ```shell
 hadolint Dockerfile
+trivy image myprogram:1 > security-report.log
 ```
 
 
