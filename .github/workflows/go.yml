@@ -45,9 +45,15 @@ jobs:
   lint:
     needs: [format]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ['1.21', '1.22']
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.version }}
+        cache: false
     - uses: golangci/golangci-lint-action@v4
       with:
         version: latest
