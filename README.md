@@ -41,8 +41,11 @@ kubectl logs pod/myprogram-xxxxx
 
 ## Part3
 
-```shell
-```
+Github: https://github.com/Ant0wan/casestudy
+
+Summary of a CI
+`https://github.com/Ant0wan/casestudy/actions/runs/8006423474`
+
 
 ## Part4
 
