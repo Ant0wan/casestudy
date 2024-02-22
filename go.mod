@@ -1,6 +1,6 @@
 module myprogram
 
-go 1.22
+go 1.22.0
 
 require (
 	github.com/gocolly/colly v1.2.0
