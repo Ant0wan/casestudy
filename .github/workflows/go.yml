@@ -26,69 +26,68 @@ on:
 #    branches:
 #      - main
 
-permissions: write-all
+      #permissions: write-all
 
 env:
   CGO_ENABLED: 0
   GOOS: linux
 
 jobs:
-  #  format:
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #    - uses: actions/checkout@v3
-  #    - uses: actions/setup-go@v5
-  #      with:
-  #        go-version: '1.22'
-  #    - run: if gofmt -d -l . 2>&1 | read; then gofmt -d -l .; exit 1; fi
-  #
-  #  lint:
-  #    needs: [format]
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #    - uses: actions/checkout@v3
-  #    - uses: actions/setup-go@v5
-  #    - uses: golangci/golangci-lint-action@v4
-  #      with:
-  #        version: latest
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+    - run: if gofmt -d -l . 2>&1 | read; then gofmt -d -l .; exit 1; fi
 
-  #  build:
-  #    #needs: [format, lint]
-  #    runs-on: ubuntu-latest
-  #    strategy:
-  #      matrix:
-  #        version: ['1.21', '1.22']
-  #    steps:
-  #    - uses: actions/checkout@v4
-  #    - uses: actions/setup-go@v5
-  #      with:
-  #        go-version: ${{ matrix.version }}
-  #    - run: go build -v
-  #
-  #  test:
-  #    #needs: [format, lint, build]
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #    - uses: actions/checkout@v4
-  #    - uses: actions/setup-go@v5
-  #      with:
-  #        go-version: '1.22'
-  #    - run: sh test.sh
+  lint:
+    needs: [format]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v5
+    - uses: golangci/golangci-lint-action@v4
+      with:
+        version: latest
 
-  #  audit:
-  ##    needs: [format, lint, build, test]
-  #    runs-on: ubuntu-latest
-  #    env:
-  #      GO111MODULE: on
-  #    steps:
-  #      - uses: actions/checkout@v4
-  #      - uses: securego/gosec@master
-  #        with:
-  #          args: ./...
+  build:
+    needs: [format, lint]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ['1.21', '1.22']
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.version }}
+    - run: go build -v
 
+  test:
+    needs: [format, lint, build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+    - run: sh test.sh
+
+  audit:
+    needs: [format, lint, build, test]
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+    steps:
+      - uses: actions/checkout@v4
+      - uses: securego/gosec@master
+        with:
+          args: ./...
 
   docker:
-    # needs: [format, lint, build, test, audit]
+    needs: [format, lint, build, test, audit]
     runs-on: ubuntu-latest
     services:
       registry:
@@ -113,9 +112,8 @@ jobs:
           name: myprogram-image.tar
           path: /tmp/myprogram-image.tar
 
-            # ADD TRIVY HERE
   scan:
-    needs: [docker]
+    needs: [format, lint, build, test, audit, docker]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -132,12 +130,8 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-            #
-            #
-
   minikube:
-    needs: [docker]
-    # needs: [docker, format, lint, build, test, audit]
+    needs: [format, lint, build, test, audit, docker, scan]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
