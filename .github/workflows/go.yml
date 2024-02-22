@@ -72,7 +72,7 @@ jobs:
     - run: sh test.sh
 
   audit:
-    needs: [format, lint, build, test]
+    needs: [format, lint, build]
     runs-on: ubuntu-latest
     env:
       GO111MODULE: on
