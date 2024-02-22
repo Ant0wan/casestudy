@@ -26,7 +26,8 @@ on:
 #    branches:
 #      - main
 
-#permissions: write-all
+permissions: write-all
+
 env:
   CGO_ENABLED: 0
   GOOS: linux
@@ -97,17 +98,19 @@ jobs:
     steps:
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
       - uses: docker/build-push-action@v5
         with:
+          push: true
           tags: localhost:5000/myprogram/myprogram
-          output: type=docker,dest=/tmp/myprogram-image.tar
           #tags: myprogram/myprogram:${TAG}
+      - run: |
+          docker buildx imagetools inspect localhost:5000/myprogram/myprogram
+      - run: docker pull localhost:5000/myprogram/myprogram
+      - run: docker tag localhost:5000/myprogram/myprogram myprogram/myprogram
+      - run: docker save myprogram/myprogram -o /tmp/myprogram-image.tar
       - run: ls /tmp/myprogram-image.tar
-        #      - run: |
-        #          docker buildx imagetools inspect 
-        #          #- run: docker pull localhost:5000/myprogram/myprogram
-        #          #- run: docker tag localhost:5000/myprogram/myprogram myprogam/myprogram
-        #          #- run: docker save myprogram/myprogram -o myprogram-image.tar
 
 
 
