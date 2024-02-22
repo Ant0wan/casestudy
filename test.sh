@@ -1,7 +1,7 @@
 #!/bin/sh
 #Quick tests
 PRGNAME="./myprogram"
-go build
+CGO_ENABLED=0 GOOS=linux go build -v
 # Working cases
 $PRGNAME -u "https://news.ycombinator.com/"
 $PRGNAME -u "https://news.ycombinator.com/" -u "https://arstechnica.com/"
@@ -16,3 +16,4 @@ $PRGNAME
 $PRGNAME --url
 $PRGNAME --url "https://news.ycombinator.com/" --url "toto"
 $PRGNAME --url "https://news.ycombinator.com/" --output --output stdout
+exit 0

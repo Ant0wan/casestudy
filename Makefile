@@ -4,7 +4,7 @@ NAME := myprogram
 all: build
 
 build:
-	$(GO) build -o $(NAME)
+	CGO_ENABLED=0 GOOS=linux $(GO) build -v -o $(NAME)
 
 test:
 	sh test.sh
