@@ -3,6 +3,7 @@
 // Package main provides the main entry point for the program.
 // The program is designed to crawl a given URL, extract internal and external links,
 // and output the results in either JSON or stdout format.
+
 // Note: Paging has not been implemented in this version.
 // TODO: Add an option for all links, not just relative (consider adding a --all option)
 // TODO: Add log level "cannot process URL"
