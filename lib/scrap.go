@@ -58,7 +58,10 @@ func crawl(u *url.URL) Link {
 	})
 
 	// Visit the specified URL for web scraping
-	c.Visit(u.String())
+	err := c.Visit(u.String())
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Return the Link structure with the extracted information
 	return Link{

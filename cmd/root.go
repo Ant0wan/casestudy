@@ -12,6 +12,7 @@
 package cmd
 
 import (
+	"log"
 	"os"
 	"sync"
 
@@ -31,7 +32,10 @@ var (
 myprogram connects to each URL and extracts all links from it.`,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if len(addrs) == 0 {
-				cmd.Help()
+				err := cmd.Help()
+				if err != nil {
+					log.Fatal(err)
+				}
 				os.Exit(1)
 			}
 			return nil
