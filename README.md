@@ -59,3 +59,12 @@ Google.com.
 aws.amazon.com
 EOF
 ```
+
+## Bonus
+
+This case study ends with the deployment of a workload in Kubernetes. However, the current deployment process lacks rigor, and a more structured flow could significantly improve deployment ease and maintainability.
+The current approach utilizes a "push" GitOps flow. Following the build process, the CI triggers an action that directly pushes the workload to the cluster.
+
+While this "push" method offers simplicity and ease of coding, it can lead to discrepancies over time between the workload definition in the Git repository and the actual running workload in the cluster. This phenomenon, known as "drift," poses a significant challenge for DevOps and Platform Engineers, as it can introduce bugs and issues in the long run.
+
+A "pull" GitOps flow offers a solution to this problem. In this model, a continuously running tool consistently monitors for discrepancies between the application definition (stored in the repository or registry) and the currently deployed resources. If any drift is detected, the tool, referred to as an operator, automatically rectifies the issue by applying the defined configurations.
