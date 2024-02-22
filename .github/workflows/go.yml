@@ -98,20 +98,19 @@ jobs:
     steps:
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
-        #with:
-        #  driver-opts: network=host
+        with:
+          driver-opts: network=host
       - uses: docker/build-push-action@v5
         with:
-          output: type=tar,dest=${{ env.GITHUB_PATH }}/image.tar
-          tags: myprogram/myprogram
-            #tags: localhost:5000/myprogram/myprogram
+          push: true
+          tags: localhost:5000/myprogram/myprogram
           #tags: myprogram/myprogram:${TAG}
-          #- run: |
-          #docker buildx imagetools inspect localhost:5000/myprogram/myprogram
-          #- run: docker pull localhost:5000/myprogram/myprogram
-          #- run: docker tag localhost:5000/myprogram/myprogram myprogram/myprogram
-          #- run: docker save myprogram/myprogram -o /tmp/myprogram-image.tar
-      - run: ls ${{env.GITHUB_PATH }}
+      - run: |
+          docker buildx imagetools inspect localhost:5000/myprogram/myprogram
+      - run: docker pull localhost:5000/myprogram/myprogram
+      - run: docker tag localhost:5000/myprogram/myprogram myprogram/myprogram
+      - run: docker save myprogram/myprogram -o /tmp/myprogram-image.tar
+      - run: ls /tmp/myprogram-image.tar
 
 
 
