@@ -103,18 +103,16 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           push: true
-          tags: localhost:5000/myprogram/myprogram
-          #tags: myprogram/myprogram:${TAG}
-      - run: |
-          docker buildx imagetools inspect localhost:5000/myprogram/myprogram
+          tags: localhost:5000/myprogram/myprogram     #tags: myprogram/myprogram:${TAG}
+      - run: docker buildx imagetools inspect localhost:5000/myprogram/myprogram
       - run: docker pull localhost:5000/myprogram/myprogram
       - run: docker tag localhost:5000/myprogram/myprogram myprogram/myprogram
       - run: docker save myprogram/myprogram -o /tmp/myprogram-image.tar
-      - run: ls /tmp/myprogram-image.tar
+      - uses: actions/upload-artifact@v3
+        with:
+          name: myprogram-image.tar
+          path: /tmp/myprogram-image.tar
 
-
-
-    # upload as artifact or release
     # Minikube CI retreive and deploys  (download artifact + env conf + docker import)
 
 
