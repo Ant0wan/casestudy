@@ -115,7 +115,6 @@ jobs:
 
             # ADD TRIVY HERE
 
-    # Minikube CI retreive and deploys  (download artifact + env conf + docker import)
   minikube:
     needs: [docker]
     # needs: [docker, format, lint, build, test, audit]
@@ -132,3 +131,4 @@ jobs:
         docker load -i myprogram-image.tar
     - run: kubectl create -f myprogram-manifest.yaml --dry-run=server
     - run: kubectl create -f myprogram-manifest.yaml
+    - run: kubectl logs -l job-name=myprogram
