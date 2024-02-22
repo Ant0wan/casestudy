@@ -47,5 +47,12 @@ kubectl logs pod/myprogram-xxxxx
 ## Part4
 
 ```shell
-grep -aoiE '[a-z]+.com' file-part4.txt | awk '{print tolower($0)}'
+grep -aoiE '[a-z]+.com' <<EOF | awk '{print tolower($0)}'
+http://tiktok.com
+https://ads.faceBoook.com.
+https://sub.ads.faCebook.com
+api.tiktok.com
+Google.com.
+aws.amazon.com
+EOF
 ```
