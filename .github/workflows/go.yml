@@ -103,7 +103,7 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           push: true
-          tags: localhost:5000/myprogram/myprogram     #tags: myprogram/myprogram:${TAG}
+          tags: localhost:5000/myprogram/myprogram     #tags: myprogram/myprogram:${{ github.sha }}
       - run: docker buildx imagetools inspect localhost:5000/myprogram/myprogram
       - run: docker pull localhost:5000/myprogram/myprogram
       - run: docker tag localhost:5000/myprogram/myprogram myprogram/myprogram
@@ -114,21 +114,41 @@ jobs:
           path: /tmp/myprogram-image.tar
 
             # ADD TRIVY HERE
+  scan:
+    needs: [docker]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          name: myprogram-image.tar
+      - run: docker load -i myprogram-image.tar
+      - uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'myprogram/myprogram'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+            #
+            #
 
   minikube:
     needs: [docker]
     # needs: [docker, format, lint, build, test, audit]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: medyagh/setup-minikube@master
-    - uses: actions/download-artifact@v3
-      with:
-        name: myprogram-image.tar
-    - run: |
-        export SHELL=/bin/bash
-        eval $(minikube -p minikube docker-env)
-        docker load -i myprogram-image.tar
-    - run: kubectl create -f myprogram-manifest.yaml --dry-run=server
-    - run: kubectl create -f myprogram-manifest.yaml
-    - run: kubectl logs -l job-name=myprogram
+      - uses: actions/checkout@v4
+      - uses: medyagh/setup-minikube@master
+      - uses: actions/download-artifact@v3
+        with:
+          name: myprogram-image.tar
+      - run: |
+          export SHELL=/bin/bash
+          eval $(minikube -p minikube docker-env)
+          docker load -i myprogram-image.tar
+      - run: kubectl create -f myprogram-manifest.yaml --dry-run=server
+      - run: kubectl create -f myprogram-manifest.yaml
+      - run: kubectl logs -l job-name=myprogram
