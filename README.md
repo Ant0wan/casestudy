@@ -9,7 +9,7 @@ make
 Related tests and linter
 ```shell
 golangci-lint run
-shellcheck test
+shellcheck test.sh
 checkmake Makefile
 make test
 ```
@@ -36,7 +36,7 @@ docker build -t myprogram/myprogram .
 
 kubectl create -f myprogram-manifest.yaml --dry-run=client
 kubectl create -f myprogram-manifest.yaml
-kubectl logs pod/myprogram-xxxxx
+kubectl logs -l job-name=myprogram
 ```
 
 ## Part3
