@@ -113,32 +113,22 @@ jobs:
           name: myprogram-image.tar
           path: /tmp/myprogram-image.tar
 
+            # ADD TRIVY HERE
+
     # Minikube CI retreive and deploys  (download artifact + env conf + docker import)
-
-
-
-      #  note:
-      #    needs: [format, lint, build, test, audit]
-      #    if: startsWith(github.ref, 'refs/tags/')
-      #    runs-on: ubuntu-latest
-      #    env:
-      #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #    steps:
-      #    - uses: actions/checkout@v3
-      #    - run: gh release create ${GITHUB_REF#refs/*/} --generate-notes
-      #  release:
-      #    needs: [format, lint, build, test, audit, note]
-      #    if: startsWith(github.ref, 'refs/tags/')
-      #    runs-on: ubuntu-latest
-      #    env:
-      #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #    strategy:
-      #      matrix:
-      #        target: [x86_64-unknown-linux-musl, x86_64-apple-darwin, aarch64-unknown-linux-musl, aarch64-apple-darwin]
-      #    steps:
-      #    - uses: actions/checkout@v3
-      #    - uses: actions/download-artifact@v3
-      #      with:
-      #        name: tfam_${{ matrix.target }}
-      #    - run: mv tfam tfam_${{ matrix.target }}
-      #    - run: gh release upload ${GITHUB_REF#refs/*/} tfam_${{ matrix.target }}
+  minikube:
+    needs: [docker]
+    # needs: [docker, format, lint, build, test, audit]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: medyagh/setup-minikube@master
+    - uses: actions/download-artifact@v3
+      with:
+        name: myprogram-image.tar
+    - run: |
+        export SHELL=/bin/bash
+        eval $(minikube -p minikube docker-env)
+        docker load -i myprogram-image.tar
+    - run: kubectl create -f myprogram-manifest.yaml --dry-run=server
+    - run: kubectl create -f myprogram-manifest.yaml
